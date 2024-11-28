@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Joc cu Mașini</title>
+    <style>
+        body { margin: 0; padding: 0; background-color: #333; }
+        canvas { display: block; margin: auto; background-color: #fff; }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script src="game.js"></script>
+</body>
+</htmlconst canvas = document.getElementById('gameCanvas');
+const ctx = canvas.getContext('2d');
+
+let car = {
+    x: canvas.width / 2 - 25,
+    y: canvas.height - 100,
+    width: 50,
+    height: 100,
+    speed: 5
+};
+
+let obstacles = [];
+let obstacleSpeed = 3;
+
+let leftPressed = false;
+let rightPressed = false;
+
+document.addEventListener("keydown", keyDownHandler, false);
+document.addEventListener("keyup", keyUpHandler, false);
+
+function keyDownHandler(e) {
+    if (e.key == "ArrowLeft" || e.key == "a") {
+        leftPressed = true;
+    }
+    if (e.key == "ArrowRight" || e.key == "d") {
+        rightPressed = true;
+    }
+}
+
+function keyUpHandler(e) {
+    if (e.key == "ArrowLeft" || e.key == "a") {
+        leftPressed = false;
+    }
+    if (e.key == "ArrowRight" || e.key == "d") {
+        rightPressed = false;
+    }
+}
+
+function generateObstacle() {
+    let width = Math.random() * (100 - 40) + 40;
+    let x = Math.random() * (canvas.width - width);
+    obstacles.push({ x: x, y: -50, width: width, height: 50 });
+}
+
+function drawCar() {
+    ctx.fillStyle = "#FF0000";
+    ctx.fillRect(car.x, car.y, car.width, car.height);
+}
+
+function drawObstacles() {
+    ctx.fillStyle = "#00FF00";
+    for (let i = 0; i < obstacles.length; i++) {
+        ctx.fillRect(obstacles[i].x, obstacles[i].y, obstacles[i].width, obstacles[i].height);
+    }
+}
+
+function moveObstacles() {
+    for (let i = 0; i < obstacles.length; i++) {
+        obstacles[i].y += obstacleSpeed;
+        if (obstacles[i].y > canvas.height) {
+            obstacles.splice(i, 1);
+        }
+    }
+}
+
+function checkCollisions() {
+    for (let i = 0; i < obstacles.length; i++) {
+        if (car.x < obstacles[i].x + obstacles[i].width &&
+            car.x + car.width > obstacles[i].x &&
+            car.y < obstacles[i].y + obstacles[i].height &&
+            car.y + car.height > obstacles[i].y) {
+            alert("Jocul s-a terminat!");
+            document.location.reload();
+        }
+    }
+}
+
+function updateGame() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
+    if (leftPressed && car.x > 0) {
+        car.x -= car.speed;
+    }
+    if (rightPressed && car.x < canvas.width - car.width) {
+        car.x += car.speed;
+    }
+
+    drawCar();
+    drawObstacles();
+    moveObstacles();
+    checkCollisions();
+    
+    if (Math.random() < 0.02) {
+        generateObstacle();
+    }
+
+    requestAnimationFrame(updateGame);
+}
+
+updateGame();
+>
